@@ -1,0 +1,10 @@
+[build]
+  publish = "."
+
+# Marketing page loads at the root URL.
+# The app/demo stays reachable at /index.html (already linked from landing.html).
+[[redirects]]
+  from = "/"
+  to = "/landing.html"
+  status = 200
+  force = false

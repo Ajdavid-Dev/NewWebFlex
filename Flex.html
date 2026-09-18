@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Villager Budget — Your money, your lifestyle, one clear plan</title>
+<!-- ============================================================
+  VILLAGER BUDGET — Interactive front-end prototype
+  Stack: HTML5 + CSS3 + Vanilla JS + Chart.js + Lucide icons
+  All banking / payment behaviour is SIMULATED with dummy data.
+  ============================================================ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<!-- ============ TOASTS ============ -->
+<div id="toastHost" aria-live="polite"></div>
+<!-- ============ AUTH SCREENS (JS controls visibility) ============ -->
+<div class="screen" id="splash" aria-label="Villager Budget splash screen">
+  <div class="logo-mark"><svg data-lucide="home"></svg></div>
+  <h1>Villager Budget</h1>
+  <p>Manage your money around the life you actually live.</p>
+  <div class="strip" aria-hidden="true"></div>
+</div>
+
+<div class="screen hidden" id="welcome">
+  <div class="auth-wrap">
+    <div class="brand-line"><div class="logo-mark"><svg data-lucide="home"></svg></div><div><b>Villager</b><span>Budget</span></div></div>
+    <h2 class="auth-title">Your money, your lifestyle,<br>one clear plan.</h2>
+    <p class="auth-sub">Connect your Nigerian bank accounts and wallets, see everything in one place, and get a monthly plan built around the way you really live — not a formula.</p>
+    <div class="stack" style="gap:10px">
+      <button class="btn btn-primary btn-block" onclick="showScreen('signup')">Create account</button>
+      <button class="btn btn-secondary btn-block" onclick="showScreen('signin')">Sign in</button>
+      <!-- <button class="btn btn-ghost btn-block" onclick="enterDemo()">Explore with demo data</button> -->
+    </div>
+    <div class="trust"><svg data-lucide="shield-check"></svg><span>This is an interactive prototype. No real bank connections or payments are made, and nothing you enter leaves your browser. In a live product, account access would be read-only and consent-based through regulated financial-data providers.</span></div>
+  </div>
+</div>
+
+<div class="screen hidden" id="signup">
+  <div class="auth-wrap">
+    <button class="btn btn-ghost" onclick="showScreen('welcome')" style="margin-left:-14px"><svg data-lucide="arrow-left"></svg> Back</button>
+    <h2 class="auth-title">Create your account</h2>
+    <p class="auth-sub">A few details to set things up.</p>
+    <form onsubmit="event.preventDefault(); submitSignup()">
+      <div class="field"><label for="suName">Full name</label><input class="input" id="suName" placeholder="e.g. David Adeyemi" required autocomplete="name"></div>
+      <div class="field"><label for="suEmail">Email address</label><input class="input" id="suEmail" type="email" placeholder="you@example.com" required autocomplete="email"></div>
+      <div class="field"><label for="suPhone">Phone number</label><input class="input" id="suPhone" type="tel" placeholder="0803 123 4567" required autocomplete="tel"></div>
+      <div class="grid2">
+        <div class="field"><label for="suPass">Password</label><input class="input" id="suPass" type="password" placeholder="8+ characters" minlength="8" required></div>
+        <div class="field"><label for="suPass2">Confirm password</label><input class="input" id="suPass2" type="password" placeholder="Repeat password" required></div>
+      </div>
+      <label class="check-row field"><input type="checkbox" required> <span>I agree to the <a href="#" onclick="event.preventDefault();toast('Terms would open here in a live product.')">Terms of Use</a> and <a href="#" onclick="event.preventDefault();toast('Privacy policy would open here.')">Privacy Policy</a>.</span></label>
+      <button class="btn btn-primary btn-block" type="submit">Continue</button>
+    </form>
+  </div>
+</div>
+
+<div class="screen hidden" id="signin">
+  <div class="auth-wrap">
+    <button class="btn btn-ghost" onclick="showScreen('welcome')" style="margin-left:-14px"><svg data-lucide="arrow-left"></svg> Back</button>
+    <h2 class="auth-title">Welcome back</h2>
+    <p class="auth-sub">Sign in to continue.</p>
+    <form onsubmit="event.preventDefault(); submitSignin()">
+      <div class="field"><label for="siId">Email or phone</label><input class="input" id="siId" placeholder="you@example.com" required></div>
+      <div class="field"><label for="siPass">Password</label><input class="input" id="siPass" type="password" placeholder="Your password" required></div>
+      <div class="spread field">
+        <label class="check-row" style="margin:0"><input type="checkbox" checked> Remember me</label>
+        <button type="button" class="link" style="background:none;color:var(--green-700);font-weight:600;font-size:13px" onclick="toast('A reset link would be sent to your email.','pos')">Forgot password?</button>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+    </form>
+  </div>
+</div>
+
+<div class="screen hidden" id="otp">
+  <div class="auth-wrap" style="text-align:center">
+    <div class="logo-mark" style="margin:0 auto"><svg data-lucide="message-square-lock"></svg></div>
+    <h2 class="auth-title">Verify your number</h2>
+    <p class="auth-sub">Enter the 6-digit code sent to your phone.<br><span class="tiny">(Prototype tip: any 6 digits work.)</span></p>
+    <div class="pin-row" id="otpRow"></div>
+    <p class="small muted" id="otpTimer"></p>
+    <button class="btn btn-primary btn-block" style="margin-top:14px" onclick="verifyOtp()">Verify</button>
+  </div>
+</div>
+
+<!-- ============ ONBOARDING ============ -->
+<div class="screen hidden" id="onboarding">
+  <div class="ob-shell">
+    <div class="ob-top">
+      <div class="brand-line"><div class="logo-mark" style="width:38px;height:38px;border-radius:12px"><svg data-lucide="home"></svg></div><div><b style="font-size:15px">Let’s understand your life</b><span id="obStepLabel">Step 1 of 7</span></div></div>
+      <button class="btn btn-ghost btn-sm" onclick="enterDemo()">Skip, use demo</button>
+    </div>
+    <div class="ob-progress"><div class="bar" id="obBar" style="width:14%"></div></div>
+    <div id="obBody"></div>
+  </div>
+  <div class="ob-foot"><div class="ob-foot-in">
+    <button class="btn btn-secondary" id="obBack" onclick="obPrev()">Back</button>
+    <button class="btn btn-primary" id="obNext" onclick="obNext()">Continue</button>
+  </div></div>
+</div>
+
+<!-- ============ APP SHELL ============ -->
+<div id="app">
+  <nav class="sidebar" aria-label="Main navigation">
+    <div class="brand-line"><div class="logo-mark" style="width:40px;height:40px;border-radius:12px"><svg data-lucide="home"></svg></div><div><b style="font-size:16px">Villager</b><span>Budget</span></div></div>
+    <div id="sideNav"></div>
+    <div class="foot">
+      <button class="nav-item" onclick="toggleTheme()"><svg data-lucide="moon"></svg><span class="nav-label">Theme</span></button>
+      <button class="nav-item collapse-btn" onclick="document.body.classList.toggle('sb-collapsed')"><svg data-lucide="panel-left-close"></svg><span class="nav-label">Collapse</span></button>
+    </div>
+  </nav>
+
+  <div class="main">
+    <header class="topbar">
+      <div><h1 id="tbTitle">Home</h1><div class="sub" id="tbSub"></div></div>
+      <div class="row" style="gap:9px;position:relative">
+        <button class="icon-btn" onclick="toggleTheme()" aria-label="Toggle dark mode"><svg data-lucide="moon"></svg></button>
+        <button class="icon-btn" id="notifBtn" onclick="toggleNotifs(event)" aria-label="Notifications"><svg data-lucide="bell"></svg><span class="dot" id="notifDot"></span></button>
+        <button class="avatar" style="border:none" onclick="navigate('profile')" aria-label="Profile" id="tbAvatar">D</button>
+        <div id="notifPanel"></div>
+      </div>
+    </header>
+    <main id="viewHost" class="view" tabindex="-1"></main>
+  </div>
+
+  <nav class="bottom-nav" aria-label="Bottom navigation" id="bottomNav"></nav>
+  <button class="coach-fab" onclick="openCoach()" aria-label="Open AI financial coach"><svg data-lucide="sparkles"></svg></button>
+</div>
+
+<!-- Modal + coach hosts -->
+<div id="modalHost"></div>
+<div id="coachHost"></div>
+
+<script src="js/app.js" defer></script>
+</body>
+</html>
