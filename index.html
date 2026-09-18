@@ -244,10 +244,19 @@
   <span class="doodle" style="bottom:18%;right:9%;animation-delay:.8s" aria-hidden="true">✨</span>
   <h2>Manage your money around the life you actually live.</h2>
   <p>Join the waitlist and be first in line when Flex launches.</p>
-  <form class="wait-form" onsubmit="event.preventDefault(); joinWaitlist(this)">
+  <!-- <form class="wait-form" netlify >
     <input type="email" required placeholder="Your email address" aria-label="Email address">
     <button class="btn btn-sun" type="submit">Join waitlist 🚀</button>
-  </form>
+     onsubmit="event.preventDefault(); joinWaitlist(this)"
+  </form> -->
+  <form class="wait-form" name="waitlist" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+  <input type="hidden" name="form-name" value="waitlist">
+  <p class="hidden" style="display:none">
+    <label>Don't fill this out: <input name="bot-field"></label>
+  </p>
+  <input type="email" name="email" required placeholder="Your email address" aria-label="Email address">
+  <button class="btn btn-sun" type="submit">Join waitlist 🚀</button>
+</form>
   <!-- <div style="margin-top:24px;position:relative"><a class="btn btn-ghosty" href="index.html">Or open the demo <svg data-lucide="arrow-right"></svg></a></div> -->
   <p class="note">No spam, we promise. Just launch gist and early access.</p>
 </section>
