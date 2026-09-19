@@ -15,8 +15,38 @@ function landToast(msg){
   t.classList.add('show'); clearTimeout(toastT);
   toastT=setTimeout(()=>t.classList.remove('show'), 3400);
 }
+
+// function joinWaitlist(form){
+//   const email=form.querySelector('input').value;
+//   form.querySelector('input').value='';
+//   landToast('You just joined the waitlist! '+email.split('@')[0]+' 🎉 ');
+// }
+
 function joinWaitlist(form){
-  const email=form.querySelector('input').value;
-  form.querySelector('input').value='';
-  landToast('You’re on the list, '+email.split('@')[0]+'! 🎉 (Simulated — nothing is sent.)');
+  const input = form.querySelector('input[type="email"]');
+  const email = input.value;
+  const btn = form.querySelector('button');
+  const btnLabel = btn.textContent;
+
+  btn.disabled = true;
+  btn.textContent = 'Joining…';
+
+  const data = new FormData(form);
+
+  fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(data).toString()
+  })
+    .then(() => {
+      input.value = '';
+      landToast('You’re on the list, ' + email.split('@')[0] + '! 🎉');
+    })
+    .catch(() => {
+      landToast('Hmm, that didn’t go through — mind trying again? 🙏');
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.textContent = btnLabel;
+    });
 }
